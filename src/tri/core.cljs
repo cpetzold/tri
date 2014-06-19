@@ -43,22 +43,27 @@
        (map (partial str/join ","))
        (str/join " ")))
 
+(sm/defn mouse-pos :- Point [e]
+  [(.-clientX e) (.-clientY e)])
+
 (defcomponentk triangles
-  [[:data points]]
+  [[:data points mouse-point]]
   (render [this]
     (let [triangles (triangulate points)]
+      (js/console.log (str mouse-point))
       (dom/svg
-       {:on-click (fn [e]
-                    (let [point [(.-clientX e) (.-clientY e)]]
-                      (om/transact! points #(conj % point))))}
-       (for [triangle (triangulate points)]
+       {:on-mouse-move #(om/update! mouse-point (mouse-pos %))
+        :on-mouse-down (fn [e]
+                         (om/transact! points #(conj % (mouse-pos e))))}
+       (for [triangle (-> points (p/conj-when mouse-point) triangulate)]
          (dom/polygon
           {:points (point-str triangle)
            :style {:stroke "white"
                    :stroke-width 1}}))))))
 
 (def app-state
-  {:points []})
+  {:points []
+   :mouse-point []})
 
 (defn ^:export init []
   (let [container (node :#container)]
