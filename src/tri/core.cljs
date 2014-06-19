@@ -1,8 +1,12 @@
 (ns tri.core
   (:require-macros
-   [schema.macros :as sm])
+   [schema.macros :as sm]
+   [dommy.macros :refer [node sel1]])
   (:require
+   [dommy.core :as dommy]
+   [plumbing.core :as p :include-macros true]
    [om.core :as om :include-macros true]
+   [om-tools.core :refer-macros [defcomponentk]]
    [om-tools.dom :as dom :include-macros true]
    [schema.core :as s]))
 
@@ -26,3 +30,20 @@
        triangulate*
        (map (partial nth points))
        (partition 3)))
+
+
+(defcomponentk triangles
+  []
+  (render [this]
+    (dom/div
+     (str (triangulate [[0 0] [0 1] [1 1] [1 0]])))))
+
+(def app-state
+  {:points []})
+
+(defn ^:export init []
+  (let [container (node :#container)]
+    (dommy/append! js/document.body container)
+    (om/root triangles app-state {:target container})))
+
+(init)

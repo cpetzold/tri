@@ -6,9 +6,9 @@
                  [org.clojure/clojure "1.5.1"]
                  [om "0.6.2"]
                  [prismatic/schema "0.2.4"]
-                 [prismatic/plumbing "0.3.1"]
+                 [prismatic/plumbing "0.3.2"]
                  [prismatic/dommy "0.1.2"]
-                 [prismatic/om-tools "0.1.1"]]
+                 [prismatic/om-tools "0.2.1"]]
 
   :plugins [[lein-ring "0.8.10"]
             [com.cemerick/austin "0.1.4"]
