@@ -3,6 +3,7 @@
    [schema.macros :as sm]
    [dommy.macros :refer [node sel1]])
   (:require
+   [clojure.string :as str]
    [dommy.core :as dommy]
    [plumbing.core :as p :include-macros true]
    [om.core :as om :include-macros true]
@@ -18,6 +19,11 @@
    (s/one Point "b")
    (s/one Point "c")])
 
+(sm/defschema Color
+  [(s/one s/Num "red")
+   (s/one s/Num "green")
+   (s/one s/Num "blue")])
+
 (defn wrap-array-fn [f]
   (comp js->clj f clj->js))
 
@@ -31,12 +37,25 @@
        (map (partial nth points))
        (partition 3)))
 
+(sm/defn point-str :- s/Str
+  [points :- [Point]]
+  (->> points
+       (map (partial str/join ","))
+       (str/join " ")))
 
 (defcomponentk triangles
-  []
+  [[:data points]]
   (render [this]
-    (dom/div
-     (str (triangulate [[0 0] [0 1] [1 1] [1 0]])))))
+    (let [triangles (triangulate points)]
+      (dom/svg
+       {:on-click (fn [e]
+                    (let [point [(.-clientX e) (.-clientY e)]]
+                      (om/transact! points #(conj % point))))}
+       (for [triangle (triangulate points)]
+         (dom/polygon
+          {:points (point-str triangle)
+           :style {:stroke "white"
+                   :stroke-width 1}}))))))
 
 (def app-state
   {:points []})
